@@ -1,0 +1,12 @@
+{
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/runs/route": "app/api/runs/route.js",
+  "/api/socket-token/route": "app/api/socket-token/route.js",
+  "/lobby/page": "app/lobby/page.js",
+  "/login/page": "app/login/page.js",
+  "/page": "app/page.js",
+  "/play/page": "app/play/page.js",
+  "/api/runs/summary/route": "app/api/runs/summary/route.js",
+  "/stats/page": "app/stats/page.js",
+  "/api/auth/[...nextauth]/route": "app/api/auth/[...nextauth]/route.js"
+}
