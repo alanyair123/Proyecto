@@ -3,9 +3,13 @@ from dotenv import load_dotenv
 import json
 import time
 import os
+from pathlib import Path
 
-# Cargamos las variables de entorno desde tu archivo .env
-load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent
+
+# Cargar .env y API.json desde la carpeta del proyecto, independientemente
+# de la carpeta desde la que se inicie Flask.
+load_dotenv(BASE_DIR / '.env')
 
 app = Flask(__name__)
 # Configuramos la clave secreta de Flask usando el .env (buena práctica de seguridad)
@@ -22,7 +26,7 @@ def get_data():
     start_time = time.time()
     
     # Leemos el archivo JSON con encoding utf-8 para que no haya errores con la "ñ"
-    with open('API.json', 'r', encoding='utf-8') as file:
+    with (BASE_DIR / 'API.json').open('r', encoding='utf-8') as file:
         db_mock = json.load(file)
     
     # Calculamos el tiempo de respuesta para cumplir el SLA de <400ms
