@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "metadata": {
+    "total_records": 10000,
+    "page": 1,
+    "response_time_ms": 120
+  },
+  "data": [
+    { "id": 1, "title": "Orden #1001", "status": "todo", "client": "Empresa A" },
+    { "id": 2, "title": "Revisar Inventario", "status": "in-progress", "client": "Interno" },
+    { "id": 3, "title": "Cupones Navideños", "status": "done", "client": "Marketing" }
+  ]
+}

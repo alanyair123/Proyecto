@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PulseMarket - Vibe Coding</title>
+    <!-- Usamos Tailwind CSS vía CDN para cumplir con el requisito de estilos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Estilos básicos para el Drag & Drop */
+        .drag-over { background-color: #e5e7eb; border: 2px dashed #3b82f6; }
+        .task-card { cursor: grab; transition: transform 0.2s; }
+        .task-card:active { cursor: grabbing; transform: scale(0.98); }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen text-gray-800 font-sans">
+
+    <!-- Navbar/Middleware Visual -->
+    <nav class="bg-indigo-600 text-white p-4 shadow-md flex justify-between items-center">
+        <h1 class="text-xl font-bold">PulseMarket Dashboard</h1>
+        <div class="text-sm bg-indigo-800 px-3 py-1 rounded-full" id="status-badge">🟢 SLA: Validando...</div>
+    </nav>
+
+    <main class="p-8">
+        <h2 class="text-2xl font-semibold mb-6">Gestión de Tareas (Kanban)</h2>
+        
+        <!-- Tablero Kanban -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Columna Pendiente -->
+            <div class="bg-white p-4 rounded-lg shadow min-h-[400px] kanban-col" data-status="todo">
+                <h3 class="font-bold border-b pb-2 mb-4 text-gray-600">📝 Por Hacer</h3>
+                <div id="col-todo" class="space-y-3 min-h-[300px]"></div>
+            </div>
+
+            <!-- Columna En Progreso -->
+            <div class="bg-white p-4 rounded-lg shadow min-h-[400px] kanban-col" data-status="in-progress">
+                <h3 class="font-bold border-b pb-2 mb-4 text-blue-600">⏳ En Progreso</h3>
+                <div id="col-in-progress" class="space-y-3 min-h-[300px]"></div>
+            </div>
+
+            <!-- Columna Completado -->
+            <div class="bg-white p-4 rounded-lg shadow min-h-[400px] kanban-col" data-status="done">
+                <h3 class="font-bold border-b pb-2 mb-4 text-green-600">✅ Completado</h3>
+                <div id="col-done" class="space-y-3 min-h-[300px]"></div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Carga de datos desde la API (simulando los 10k registros paginados)
+        async function loadData() {
+            try {
+                const response = await fetch('/api/data');
+                const result = await response.json();
+                
+                // Actualizar SLA Badge
+                const badge = document.getElementById('status-badge');
+                badge.innerText = `🟢 SLA: ${result.metadata.response_time_ms}ms (OK)`;
+
+                // Renderizar tarjetas
+                result.data.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'task-card bg-gray-50 border p-3 rounded shadow-sm';
+                    card.draggable = true;
+                    card.id = `task-${item.id}`;
+                    card.innerHTML = `<p class="font-semibold">${item.title}</p><p class="text-xs text-gray-500">${item.client}</p>`;
+                    
+                    // Eventos Drag and Drop
+                    card.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', card.id);
+                        setTimeout(() => card.classList.add('opacity-50'), 0);
+                    });
+                    card.addEventListener('dragend', () => card.classList.remove('opacity-50'));
+
+                    // Agregar a la columna correspondiente
+                    document.getElementById(`col-${item.status}`).appendChild(card);
+                });
+            } catch (error) {
+                console.error("Error cargando datos:", error);
+            }
+        }
+
+        // Lógica de las columnas Kanban
+        document.querySelectorAll('.kanban-col').forEach(col => {
+            col.addEventListener('dragover', e => {
+                e.preventDefault();
+                col.classList.add('drag-over');
+            });
+            col.addEventListener('dragleave', () => col.classList.remove('drag-over'));
+            col.addEventListener('drop', e => {
+                e.preventDefault();
+                col.classList.remove('drag-over');
+                const id = e.dataTransfer.getData('text/plain');
+                const draggable = document.getElementById(id);
+                // Encontrar el contenedor dentro de la columna
+                const container = col.querySelector('div[id^="col-"]');
+                container.appendChild(draggable);
+                
+                // Aquí iría el fetch POST o WebSocket para actualizar la BD
+                console.log(`Actualizando BD: Tarea ${id} movida a ${col.dataset.status}`);
+            });
+        });
+
+        // Inicializar
+        loadData();
+    </script>
+</body>
+</html>
